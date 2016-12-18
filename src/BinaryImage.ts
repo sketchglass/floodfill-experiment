@@ -33,6 +33,7 @@ class BinaryImage {
     }
   }
 
+  // possible optimization: On GPUs grow / shrink would run much faster
   grow(src: BinaryImage, radius: number) {
     const w = src.width
     const h = src.height
