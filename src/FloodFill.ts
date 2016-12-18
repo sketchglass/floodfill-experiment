@@ -48,6 +48,10 @@ export function floodFill(x: number, y: number, src: BinaryImage, dst: BinaryIma
 }
 
 export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryImage, dst: BinaryImage) {
+  if (gap == 0) {
+    floodFill(x, y, src, dst)
+    return
+  }
   const radius = Math.round(gap / 2)
 
   // shrink src region
