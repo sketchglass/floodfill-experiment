@@ -2,6 +2,7 @@ import {BinaryImage} from "./BinaryImage"
 
 let stack: [number, number][] = []
 
+// Stack-based scanline flood fill from http://lodev.org/cgtutor/floodfill.html
 export function floodFill(x: number, y: number, src: BinaryImage, dst: BinaryImage) {
   if (dst.get(x, y)) {
     return
