@@ -9,6 +9,9 @@ export function floodFill(x: number, y: number, src: BinaryImage, dst: BinaryIma
   }
   const w = src.width
   const h = src.height
+  if (!(0 <= x && x < w && 0 <= y && y < h)) {
+    return
+  }
   stack = []
 
   let x1: number;
@@ -42,4 +45,33 @@ export function floodFill(x: number, y: number, src: BinaryImage, dst: BinaryIma
       x1++;
     }
   }
+}
+
+export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryImage, dst: BinaryImage) {
+  const radius = Math.round(gap / 2)
+
+  // shrink src region
+  const shrinkedSrc = new BinaryImage(src.width, src.height)
+  shrinkedSrc.shrink(src, radius)
+
+  // find inside area
+  const insideShrinked = new BinaryImage(src.width, src.height)
+  for (let y1 = y - radius; y1 < y + radius; ++y1) {
+    for (let x1 = x - radius; x1 < x + radius; ++x1) {
+      floodFill(x1, y1, shrinkedSrc, insideShrinked)
+    }
+  }
+
+  // get outside area
+  const outside = new BinaryImage(src.width, src.height)
+  shrinkedSrc.sub(insideShrinked)
+  outside.grow(shrinkedSrc, radius)
+
+  // subtract outside area from normal flood fill result
+  const dstWithGarbage = new BinaryImage(src.width, src.height)
+  floodFill(x, y, src, dstWithGarbage)
+  dstWithGarbage.sub(outside)
+
+  // exclude areas that cannot be reached from (x,y)
+  floodFill(x, y, dstWithGarbage, dst)
 }

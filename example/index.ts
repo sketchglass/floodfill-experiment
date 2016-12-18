@@ -1,5 +1,5 @@
 import {BinaryImage} from "../src/BinaryImage"
-import {floodFill} from "../src/FloodFill"
+import {floodFillWithGap} from "../src/FloodFill"
 
 const canvas = document.querySelector("#canvas") as HTMLCanvasElement
 const context = canvas.getContext("2d")!
@@ -23,7 +23,8 @@ canvas.addEventListener("pointerdown", e => {
     const x = Math.round(e.offsetX + 0.5)
     const y = Math.round(e.offsetY + 0.5)
     console.time("floodFill")
-    floodFill(x, y, src, dst)
+    //floodFill(x, y, src, dst)
+    floodFillWithGap(x, y, 10, src, dst)
     console.timeEnd("floodFill")
     dst.toImageData(new Uint8ClampedArray([0,0,0,0]), new Uint8ClampedArray([0,0,255,255]), data)
     floodfillContext.putImageData(data, 0, 0)

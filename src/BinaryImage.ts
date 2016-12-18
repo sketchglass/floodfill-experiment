@@ -27,6 +27,62 @@ class BinaryImage {
     }
   }
 
+  sub(other: BinaryImage) {
+    for (let i = 0; i < this.data.length; ++i) {
+      this.data[i] &= ~other.data[i]
+    }
+  }
+
+  grow(src: BinaryImage, radius: number) {
+    const w = src.width
+    const h = src.height
+    const rr = radius * radius
+    for (let y = 0; y < h; ++y) {
+      for (let x = 0; x < w; ++x) {
+        let value = 0
+        for (let dy = -radius; dy < radius; ++dy) {
+          for (let dx = -radius; dx < radius; ++dx) {
+            if (dx * dx + dy * dy < rr) {
+              const x1 = x + dx
+              const y1 = y + dy
+              if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
+                if (src.get(x1, y1)) {
+                  value = 1
+                }
+              }
+            }
+          }
+        }
+        this.set(x, y, <BinaryValue>(value))
+      }
+    }
+  }
+
+  shrink(src: BinaryImage, radius: number) {
+    const w = src.width
+    const h = src.height
+    const rr = radius * radius
+    for (let y = 0; y < h; ++y) {
+      for (let x = 0; x < w; ++x) {
+        let value = 1
+        for (let dy = -radius; dy < radius; ++dy) {
+          for (let dx = -radius; dx < radius; ++dx) {
+            if (dx * dx + dy * dy < rr) {
+              const x1 = x + dx
+              const y1 = y + dy
+              if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
+                if (!src.get(x1, y1)) {
+                  value = 0
+                }
+              }
+            }
+          }
+        }
+        this.set(x, y, <BinaryValue>(value))
+      }
+    }
+  }
+
   static fromImageData(image: ImageData, test: (rgba: Uint8ClampedArray) => BinaryValue) {
     const ret = new BinaryImage(image.width, image.height)
     for (let y = 0; y < image.height; ++y) {
