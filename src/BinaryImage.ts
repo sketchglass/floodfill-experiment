@@ -33,6 +33,12 @@ class BinaryImage {
     }
   }
 
+  add(other: BinaryImage) {
+    for (let i = 0; i < other.data.length; ++i) {
+      this.data[i] |= other.data[i]
+    }
+  }
+
   // possible optimization: On GPUs grow / shrink would run much faster
   grow(src: BinaryImage, radius: number) {
     const w = src.width
