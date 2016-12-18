@@ -47,8 +47,8 @@ class BinaryImage {
     for (let y = 0; y < h; ++y) {
       for (let x = 0; x < w; ++x) {
         let value = 0
-        for (let dy = -radius; dy < radius; ++dy) {
-          for (let dx = -radius; dx < radius; ++dx) {
+        for (let dy = -radius; dy <= radius; ++dy) {
+          for (let dx = -radius; dx <= radius; ++dx) {
             if (dx * dx + dy * dy < rr) {
               const x1 = x + dx
               const y1 = y + dy
@@ -72,8 +72,8 @@ class BinaryImage {
     for (let y = 0; y < h; ++y) {
       for (let x = 0; x < w; ++x) {
         let value = 1
-        for (let dy = -radius; dy < radius; ++dy) {
-          for (let dx = -radius; dx < radius; ++dx) {
+        for (let dy = -radius; dy <= radius; ++dy) {
+          for (let dx = -radius; dx <= radius; ++dx) {
             if (dx * dx + dy * dy < rr) {
               const x1 = x + dx
               const y1 = y + dy
