@@ -149,61 +149,50 @@
 	            this.data[i] |= other.data[i];
 	        }
 	    }
-	    // possible optimization: On GPUs grow / shrink would run much faster
-	    grow(src, radius) {
+	    dilate(src, radius) {
+	        this.data.set(src.data);
 	        const w = src.width;
 	        const h = src.height;
 	        const rr = radius * radius;
-	        for (let y = 0; y < h; ++y) {
-	            for (let x = 0; x < w; ++x) {
-	                if (src.get(x, y)) {
-	                    this.set(x, y, 1);
-	                }
-	                else {
-	                    let value = 0;
+	        for (let y = 1; y < h - 1; ++y) {
+	            for (let x = 1; x < w - 1; ++x) {
+	                const isEdge = src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1));
+	                if (isEdge) {
 	                    for (let dy = -radius; dy <= radius; ++dy) {
 	                        for (let dx = -radius; dx <= radius; ++dx) {
 	                            if (dx * dx + dy * dy < rr) {
 	                                const x1 = x + dx;
 	                                const y1 = y + dy;
 	                                if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
-	                                    if (src.get(x1, y1)) {
-	                                        value = 1;
-	                                    }
+	                                    this.set(x1, y1, 1);
 	                                }
 	                            }
 	                        }
 	                    }
-	                    this.set(x, y, (value));
 	                }
 	            }
 	        }
 	    }
-	    shrink(src, radius) {
+	    erode(src, radius) {
+	        this.data.set(src.data);
 	        const w = src.width;
 	        const h = src.height;
 	        const rr = radius * radius;
-	        for (let y = 0; y < h; ++y) {
-	            for (let x = 0; x < w; ++x) {
-	                if (!src.get(x, y)) {
-	                    this.set(x, y, 0);
-	                }
-	                else {
-	                    let value = 1;
+	        for (let y = 1; y < h - 1; ++y) {
+	            for (let x = 1; x < w - 1; ++x) {
+	                const isEdge = !src.get(x, y) && (src.get(x - 1, y) || src.get(x + 1, y) || src.get(x, y - 1) || src.get(x, y + 1));
+	                if (isEdge) {
 	                    for (let dy = -radius; dy <= radius; ++dy) {
 	                        for (let dx = -radius; dx <= radius; ++dx) {
 	                            if (dx * dx + dy * dy < rr) {
 	                                const x1 = x + dx;
 	                                const y1 = y + dy;
 	                                if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
-	                                    if (!src.get(x1, y1)) {
-	                                        value = 0;
-	                                    }
+	                                    this.set(x1, y1, 0);
 	                                }
 	                            }
 	                        }
 	                    }
-	                    this.set(x, y, (value));
 	                }
 	            }
 	        }
@@ -252,9 +241,9 @@
 	        return;
 	    }
 	    stack = [];
-	    let x1;
-	    let spanAbove;
-	    let spanBelow;
+	    let x1 = 0;
+	    let spanAbove = false;
+	    let spanBelow = false;
 	    stack.push([x, y]);
 	    while (stack.length > 0) {
 	        const [x, y] = stack.pop();
@@ -290,27 +279,27 @@
 	        floodFill(x, y, src, dst);
 	        return;
 	    }
+	    // do floodfill normally
 	    const radius = Math.round(gap / 2);
-	    // shrink src region
-	    const shrinkedSrc = new BinaryImage_1.BinaryImage(src.width, src.height);
-	    shrinkedSrc.shrink(src, radius);
+	    const normalFilled = new BinaryImage_1.BinaryImage(src.width, src.height);
+	    floodFill(x, y, src, normalFilled);
+	    // erode it
+	    const eroded = new BinaryImage_1.BinaryImage(src.width, src.height);
+	    eroded.erode(normalFilled, radius);
 	    // find inside area
-	    const insideShrinked = new BinaryImage_1.BinaryImage(src.width, src.height);
+	    const insideEroded = new BinaryImage_1.BinaryImage(src.width, src.height);
 	    for (let y1 = y - radius; y1 <= y + radius; ++y1) {
 	        for (let x1 = x - radius; x1 <= x + radius; ++x1) {
-	            floodFill(x1, y1, shrinkedSrc, insideShrinked);
+	            floodFill(x1, y1, eroded, insideEroded);
 	        }
 	    }
 	    // get outside area
+	    eroded.sub(insideEroded);
 	    const outside = new BinaryImage_1.BinaryImage(src.width, src.height);
-	    shrinkedSrc.sub(insideShrinked);
-	    outside.grow(shrinkedSrc, radius);
-	    // subtract outside area from normal flood fill result
-	    const dstWithGarbage = new BinaryImage_1.BinaryImage(src.width, src.height);
-	    floodFill(x, y, src, dstWithGarbage);
-	    dstWithGarbage.sub(outside);
+	    outside.dilate(eroded, radius);
+	    normalFilled.sub(outside);
 	    // exclude areas that cannot be reached from (x,y)
-	    floodFill(x, y, dstWithGarbage, dst);
+	    floodFill(x, y, normalFilled, dst);
 	}
 	exports.floodFillWithGap = floodFillWithGap;
 
