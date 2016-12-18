@@ -56,7 +56,7 @@ export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryI
 
   // shrink src region
   const shrinkedSrc = new BinaryImage(src.width, src.height)
-  shrinkedSrc.shrink(src, radius)
+  shrinkedSrc.erode(src, radius)
 
   // find inside area
   const insideShrinked = new BinaryImage(src.width, src.height)
@@ -69,7 +69,7 @@ export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryI
   // get outside area
   const outside = new BinaryImage(src.width, src.height)
   shrinkedSrc.sub(insideShrinked)
-  outside.grow(shrinkedSrc, radius)
+  outside.dilate(shrinkedSrc, radius)
 
   // subtract outside area from normal flood fill result
   const dstWithGarbage = new BinaryImage(src.width, src.height)

@@ -39,8 +39,7 @@ class BinaryImage {
     }
   }
 
-  // possible optimization: On GPUs grow / shrink would run much faster
-  grow(src: BinaryImage, radius: number) {
+  dilate(src: BinaryImage, radius: number) {
     this.data.set(src.data)
 
     const w = src.width
@@ -66,7 +65,7 @@ class BinaryImage {
     }
   }
 
-  shrink(src: BinaryImage, radius: number) {
+  erode(src: BinaryImage, radius: number) {
     this.data.set(src.data)
 
     const w = src.width
