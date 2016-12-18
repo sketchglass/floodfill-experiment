@@ -28,6 +28,7 @@ canvas.addEventListener("pointerdown", e => {
     dst.toImageData(new Uint8ClampedArray([0,0,0,0]), new Uint8ClampedArray([0,0,255,255]), data)
     floodfillContext.putImageData(data, 0, 0)
   } else {
+    floodfillContext.clearRect(0, 0, floodfillCanvas.width, floodfillCanvas.height)
     dragging = true
     lastX = e.offsetX
     lastY = e.offsetY
