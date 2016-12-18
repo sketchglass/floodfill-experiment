@@ -60,8 +60,8 @@ export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryI
 
   // find inside area
   const insideShrinked = new BinaryImage(src.width, src.height)
-  for (let y1 = y - radius; y1 < y + radius; ++y1) {
-    for (let x1 = x - radius; x1 < x + radius; ++x1) {
+  for (let y1 = y - radius; y1 <= y + radius; ++y1) {
+    for (let x1 = x - radius; x1 <= x + radius; ++x1) {
       floodFill(x1, y1, shrinkedSrc, insideShrinked)
     }
   }
