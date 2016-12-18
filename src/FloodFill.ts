@@ -52,30 +52,30 @@ export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryI
     floodFill(x, y, src, dst)
     return
   }
+  // do floodfill normally
   const radius = Math.round(gap / 2)
+  const normalFilled = new BinaryImage(src.width, src.height)
+  floodFill(x, y, src, normalFilled)
 
-  // shrink src region
-  const shrinkedSrc = new BinaryImage(src.width, src.height)
-  shrinkedSrc.erode(src, radius)
+  // erode it
+  const eroded = new BinaryImage(src.width, src.height)
+  eroded.erode(normalFilled, radius)
 
   // find inside area
-  const insideShrinked = new BinaryImage(src.width, src.height)
+  const insideEroded = new BinaryImage(src.width, src.height)
   for (let y1 = y - radius; y1 <= y + radius; ++y1) {
     for (let x1 = x - radius; x1 <= x + radius; ++x1) {
-      floodFill(x1, y1, shrinkedSrc, insideShrinked)
+      floodFill(x1, y1, eroded, insideEroded)
     }
   }
 
   // get outside area
+  eroded.sub(insideEroded)
   const outside = new BinaryImage(src.width, src.height)
-  shrinkedSrc.sub(insideShrinked)
-  outside.dilate(shrinkedSrc, radius)
+  outside.dilate(eroded, radius)
 
-  // subtract outside area from normal flood fill result
-  const dstWithGarbage = new BinaryImage(src.width, src.height)
-  floodFill(x, y, src, dstWithGarbage)
-  dstWithGarbage.sub(outside)
+  normalFilled.sub(outside)
 
   // exclude areas that cannot be reached from (x,y)
-  floodFill(x, y, dstWithGarbage, dst)
+  floodFill(x, y, normalFilled, dst)
 }
