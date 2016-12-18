@@ -41,58 +41,52 @@ class BinaryImage {
 
   // possible optimization: On GPUs grow / shrink would run much faster
   grow(src: BinaryImage, radius: number) {
+    this.data.set(src.data)
+
     const w = src.width
     const h = src.height
     const rr = radius * radius
-    for (let y = 0; y < h; ++y) {
-      for (let x = 0; x < w; ++x) {
-        if (src.get(x, y)) {
-          this.set(x, y, 1)
-        } else {
-          let value = 0
+    for (let y = 1; y < h - 1; ++y) {
+      for (let x = 1; x < w - 1; ++x) {
+        const isEdge = src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1))
+        if (isEdge) {
           for (let dy = -radius; dy <= radius; ++dy) {
             for (let dx = -radius; dx <= radius; ++dx) {
               if (dx * dx + dy * dy < rr) {
                 const x1 = x + dx
                 const y1 = y + dy
                 if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
-                  if (src.get(x1, y1)) {
-                    value = 1
-                  }
+                  this.set(x1, y1, 1)
                 }
               }
             }
           }
-          this.set(x, y, <BinaryValue>(value))
         }
       }
     }
   }
 
   shrink(src: BinaryImage, radius: number) {
+    this.data.set(src.data)
+
     const w = src.width
     const h = src.height
     const rr = radius * radius
-    for (let y = 0; y < h; ++y) {
-      for (let x = 0; x < w; ++x) {
-        if (!src.get(x, y)) {
-          this.set(x, y, 0)
-        } else {
-          let value = 1
+    for (let y = 1; y < h - 1; ++y) {
+      for (let x = 1; x < w - 1; ++x) {
+        const isEdge = src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1))
+        if (isEdge) {
           for (let dy = -radius; dy <= radius; ++dy) {
             for (let dx = -radius; dx <= radius; ++dx) {
               if (dx * dx + dy * dy < rr) {
                 const x1 = x + dx
                 const y1 = y + dy
                 if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
-                  if (!src.get(x1, y1)) {
-                    value = 0
-                  }
+                  this.set(x1, y1, 0)
                 }
               }
             }
           }
-          this.set(x, y, <BinaryValue>(value))
         }
       }
     }
