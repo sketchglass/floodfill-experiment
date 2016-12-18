@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Flood fill experiment with gaps</title>
+    <style>
+      canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      #floodfill-canvas {
+        pointer-events: none;
+      }
+      .canvases {
+        border: 1px solid grey;
+        position: relative;
+        width: 400px;
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Flood fill experiment with gaps</h1>
+    <div class="canvases">
+      <canvas id="canvas" width="400" height="400"></canvas>
+      <canvas id="floodfill-canvas" width="400" height="400"></canvas>
+    </div>
+    <div>Shift+Click to do flood fill</div>
+    <div>
+      Allowed Gap <input id="allowed-gap-input" type="range" min="0" max="20" value="0"> <span id="allowed-gap">0</span>
+    </div>
+    <div>
+      <button id="clear-drawing">Clear Drawing</button>
+      <button id="clear-flood-fill">Clear Flood Fill</button>
+    </div>
+    <a href="https://github.com/sketchglass/floodfill-experiment">View in GitHub</a>
+  </body>
+  <script src="bundle.js"></script>
+</html>
