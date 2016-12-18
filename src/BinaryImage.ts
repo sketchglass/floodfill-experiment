@@ -73,7 +73,7 @@ class BinaryImage {
     const rr = radius * radius
     for (let y = 1; y < h - 1; ++y) {
       for (let x = 1; x < w - 1; ++x) {
-        const isEdge = src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1))
+        const isEdge = !src.get(x, y) && (src.get(x - 1, y) || src.get(x + 1, y) || src.get(x, y - 1) || src.get(x, y + 1))
         if (isEdge) {
           for (let dy = -radius; dy <= radius; ++dy) {
             for (let dx = -radius; dx <= radius; ++dx) {
