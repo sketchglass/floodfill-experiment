@@ -14,9 +14,9 @@ export function floodFill(x: number, y: number, src: BinaryImage, dst: BinaryIma
   }
   stack = []
 
-  let x1: number;
-  let spanAbove: boolean
-  let spanBelow: boolean
+  let x1 = 0
+  let spanAbove = false
+  let spanBelow = false
 
   stack.push([x, y])
 
