@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "es6",
+        "noImplicitAny": true,
+        "noUnusedLocals": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strictNullChecks": true,
+        "sourceMap": true
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "floodfill-experiment",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "example": "cd example && webpack-dev-server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sketchglass/floodfill-experiment.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sketchglass/floodfill-experiment/issues"
+  },
+  "homepage": "https://github.com/sketchglass/floodfill-experiment#readme",
+  "devDependencies": {
+    "@types/node": "^6.0.52",
+    "ts-loader": "^1.3.3",
+    "typescript": "^2.1.4",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
+  }
+}
