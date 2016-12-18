@@ -4,13 +4,20 @@
     <meta charset="UTF-8">
     <title>Floodfill experiment</title>
     <style>
-      #canvas {
-        border: 1px solid grey;
+      canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        border: 1px solid grey
+      }
+      #floodfill-canvas {
+        pointer-events: none;
       }
     </style>
   </head>
   <body>
     <canvas id="canvas" width="400" height="400"></canvas>
+    <canvas id="floodfill-canvas" width="400" height="400"></canvas>
   </body>
   <script src="bundle.js"></script>
 </html>
