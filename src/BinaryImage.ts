@@ -39,19 +39,25 @@ class BinaryImage {
     }
   }
 
+  clone() {
+    const ret = new BinaryImage(this.width, this.height)
+    ret.data.set(this.data)
+    return ret
+  }
+
   // dilate / erode image
-  offset(src: BinaryImage, offset: number) {
-    this.data.set(src.data)
-    const w = src.width
-    const h = src.height
+  offset(offset: number) {
+    const ret = this.clone()
+    const w = this.width
+    const h = this.height
     const r = Math.abs(offset)
     const rr = r * r
     const dilate = offset > 0
     for (let y = 1; y < h - 1; ++y) {
       for (let x = 1; x < w - 1; ++x) {
         const isEdge = dilate
-          ? src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1))
-          : !src.get(x, y) && (src.get(x - 1, y) || src.get(x + 1, y) || src.get(x, y - 1) || src.get(x, y + 1))
+          ? this.get(x, y) && !(this.get(x - 1, y) && this.get(x + 1, y) && this.get(x, y - 1) && this.get(x, y + 1))
+          : !this.get(x, y) && (this.get(x - 1, y) || this.get(x + 1, y) || this.get(x, y - 1) || this.get(x, y + 1))
         if (isEdge) {
           const minX = Math.max(0, x - r)
           const maxX = Math.min(w - 1, x + r)
@@ -67,9 +73,9 @@ class BinaryImage {
               const dy = y1 - y
               if (dx * dx + dy * dy < rr) {
                 if (dilate) {
-                  this.data[i] |= mask
+                  ret.data[i] |= mask
                 } else {
-                  this.data[i] &= ~mask
+                  ret.data[i] &= ~mask
                 }
               }
               mask = mask << 1
@@ -82,6 +88,7 @@ class BinaryImage {
         }
       }
     }
+    return ret
   }
 
   static fromImageData(image: ImageData, trueColor: number[]) {
