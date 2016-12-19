@@ -57,20 +57,29 @@ export function floodFillWithGap(x: number, y: number, gap: number, src: BinaryI
   const normalFilled = new BinaryImage(src.width, src.height)
   floodFill(x, y, src, normalFilled)
 
+  const step = 10
+
   // erode it
-  const eroded = normalFilled.offset(-radius)
+  let eroded = normalFilled.clone()
+  for (let i = 0; i < radius; ++i) {
+    eroded = eroded.offset(-step)
+  }
 
   // find inside area
   const insideEroded = new BinaryImage(src.width, src.height)
-  for (let y1 = y - radius; y1 <= y + radius; ++y1) {
-    for (let x1 = x - radius; x1 <= x + radius; ++x1) {
+  for (let y1 = y - radius * step; y1 <= y + radius * step; ++y1) {
+    for (let x1 = x - radius * step; x1 <= x + radius * step; ++x1) {
       floodFill(x1, y1, eroded, insideEroded)
     }
   }
 
   // get outside area
   eroded.sub(insideEroded)
-  const outside = eroded.offset(radius)
+
+  let outside = eroded.clone()
+  for (let i = 0; i < radius; ++i) {
+    outside = outside.offset(step)
+  }
 
   normalFilled.sub(outside)
 

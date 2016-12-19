@@ -71,7 +71,7 @@ class BinaryImage {
             for (let x1 = minX; x1 <= maxX; ++x1) {
               const dx = x1 - x
               const dy = y1 - y
-              if (dx * dx + dy * dy < rr) {
+              if (dx * dx + dy * dy <= rr) {
                 if (dilate) {
                   ret.data[i] |= mask
                 } else {
