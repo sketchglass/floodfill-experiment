@@ -3,39 +3,33 @@ export type BinaryValue = 0|1
 
 export
 class BinaryImage {
-  data: Int32Array
-  readonly stride = Math.ceil(this.width / 32)
+  data: Uint8Array
 
-  constructor(public readonly width: number, public readonly height: number, data?: Int32Array) {
-    this.data = data || new Int32Array(this.stride * height)
+  constructor(public readonly width: number, public readonly height: number, data?: Uint8Array) {
+    this.data = data || new Uint8Array(width * height)
   }
 
-  get(x: number, y: number): BinaryValue {
-    const xcell = x >> 5
-    const xbit = x - (xcell << 5)
-    const cell = this.data[y * this.stride + xcell]
-    return <BinaryValue>((cell >> xbit) & 1)
+  get(x: number, y: number) {
+    return this.data[y * this.width + x]
   }
 
-  set(x: number, y: number, value: BinaryValue) {
-    const xcell = x >> 5
-    const xbit = x - (xcell << 5)
-    if (value) {
-      this.data[y * this.stride + xcell] |= (1 << xbit)
-    } else {
-      this.data[y * this.stride + xcell] &= ~(1 << xbit)
-    }
+  set(x: number, y: number, value: number) {
+    return this.data[y * this.width + x] = value
   }
 
   sub(other: BinaryImage) {
     for (let i = 0; i < this.data.length; ++i) {
-      this.data[i] &= ~other.data[i]
+      if (other.data[i]) {
+        this.data[i] = 0
+      }
     }
   }
 
   add(other: BinaryImage) {
     for (let i = 0; i < other.data.length; ++i) {
-      this.data[i] |= other.data[i]
+      if (other.data[i]) {
+        this.data[i] = 1
+      }
     }
   }
 
@@ -57,26 +51,19 @@ class BinaryImage {
           const maxX = Math.min(w - 1, x + r)
           const minY = Math.max(0, y - r)
           const maxY = Math.min(h - 1, y + r)
-          const xOffset = minX >> 5
-          const initMask = 1 << minX - (xOffset << 5)
           for (let y1 = minY; y1 <= maxY; ++y1) {
-            let i = y1 * this.stride + xOffset
-            let mask = initMask
+            let i = y1 * w + minX
             for (let x1 = minX; x1 <= maxX; ++x1) {
               const dx = x1 - x
               const dy = y1 - y
               if (dx * dx + dy * dy < rr) {
                 if (dilate) {
-                  this.data[i] |= mask
+                  this.data[i] = 1
                 } else {
-                  this.data[i] &= ~mask
+                  this.data[i] = 0
                 }
               }
-              mask = mask << 1
-              if (mask == 0) {
-                mask = 1
-                ++i
-              }
+              ++i
             }
           }
         }
@@ -86,23 +73,17 @@ class BinaryImage {
 
   static fromImageData(image: ImageData, trueColor: number[]) {
     const ret = new BinaryImage(image.width, image.height)
-    const {data, stride} = ret
-    let imageOffset = 0
+    const {data} = ret
+    let i = 0
     const imageData = new Int32Array(image.data.buffer)
     const trueColorValue = (new Int32Array(new Uint8Array(trueColor).buffer))[0]
     for (let y = 0; y < image.height; ++y) {
-      let offset = y * stride
-      let bitmask = 1
       for (let x = 0; x < image.width; ++x) {
-        const rgba = imageData[imageOffset++]
+        const rgba = imageData[i]
         if (rgba == trueColorValue) {
-          data[offset] |= bitmask
+          data[i] = 1
         }
-        bitmask = bitmask << 1
-        if (bitmask == 0) {
-          bitmask = 1
-          ++offset
-        }
+        ++i
       }
     }
     return ret
@@ -113,19 +94,13 @@ class BinaryImage {
     const imageData = new Int32Array(image.data.buffer)
     const color0Value = (new Int32Array(new Uint8Array(color0).buffer))[0]
     const color1Value = (new Int32Array(new Uint8Array(color1).buffer))[0]
-    let imageOffset = 0
-    const {data, stride} = this
+    let i = 0
+    const {data} = this
     for (let y = 0; y < image.height; ++y) {
-      let offset = y * stride
-      let bitmask = 1
       for (let x = 0; x < image.width; ++x) {
-        const rgba = data[offset] & bitmask ? color1Value : color0Value
-        imageData[imageOffset++] = rgba
-        bitmask = bitmask << 1
-        if (bitmask == 0) {
-          bitmask = 1
-          ++offset
-        }
+        const rgba = data[i] ? color1Value : color0Value
+        imageData[i] = rgba
+        ++i
       }
     }
     return image
