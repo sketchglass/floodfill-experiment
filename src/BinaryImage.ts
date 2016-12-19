@@ -39,50 +39,43 @@ class BinaryImage {
     }
   }
 
-  dilate(src: BinaryImage, radius: number) {
+  // dilate / erode image
+  offset(src: BinaryImage, offset: number) {
     this.data.set(src.data)
-
     const w = src.width
     const h = src.height
-    const rr = radius * radius
+    const r = Math.abs(offset)
+    const rr = r * r
+    const dilate = offset > 0
     for (let y = 1; y < h - 1; ++y) {
       for (let x = 1; x < w - 1; ++x) {
-        const isEdge = src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1))
+        const isEdge = dilate
+          ? src.get(x, y) && !(src.get(x - 1, y) && src.get(x + 1, y) && src.get(x, y - 1) && src.get(x, y + 1))
+          : !src.get(x, y) && (src.get(x - 1, y) || src.get(x + 1, y) || src.get(x, y - 1) || src.get(x, y + 1))
         if (isEdge) {
-          for (let dy = -radius; dy <= radius; ++dy) {
-            for (let dx = -radius; dx <= radius; ++dx) {
+          const minX = Math.max(0, x - r)
+          const maxX = Math.min(w - 1, x + r)
+          const minY = Math.max(0, y - r)
+          const maxY = Math.min(h - 1, y + r)
+          const xOffset = minX >> 5
+          const initMask = 1 << minX - (xOffset << 5)
+          for (let y1 = minY; y1 <= maxY; ++y1) {
+            let i = y1 * this.stride + xOffset
+            let mask = initMask
+            for (let x1 = minX; x1 <= maxX; ++x1) {
+              const dx = x1 - x
+              const dy = y1 - y
               if (dx * dx + dy * dy < rr) {
-                const x1 = x + dx
-                const y1 = y + dy
-                if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
-                  this.set(x1, y1, 1)
+                if (dilate) {
+                  this.data[i] |= mask
+                } else {
+                  this.data[i] &= ~mask
                 }
               }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  erode(src: BinaryImage, radius: number) {
-    this.data.set(src.data)
-
-    const w = src.width
-    const h = src.height
-    const rr = radius * radius
-    for (let y = 1; y < h - 1; ++y) {
-      for (let x = 1; x < w - 1; ++x) {
-        const isEdge = !src.get(x, y) && (src.get(x - 1, y) || src.get(x + 1, y) || src.get(x, y - 1) || src.get(x, y + 1))
-        if (isEdge) {
-          for (let dy = -radius; dy <= radius; ++dy) {
-            for (let dx = -radius; dx <= radius; ++dx) {
-              if (dx * dx + dy * dy < rr) {
-                const x1 = x + dx
-                const y1 = y + dy
-                if (0 <= x1 && x1 < w && 0 <= y1 && y1 < h) {
-                  this.set(x1, y1, 0)
-                }
+              mask = mask << 1
+              if (mask == 0) {
+                mask = 1
+                ++i
               }
             }
           }
