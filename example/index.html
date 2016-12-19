@@ -22,10 +22,6 @@
   </head>
   <body>
     <h1>Flood fill experiment with gaps</h1>
-    <div class="canvases">
-      <canvas id="canvas" width="2000" height="2000"></canvas>
-      <canvas id="floodfill-canvas" width="2000" height="2000"></canvas>
-    </div>
     <div>Shift+Click to do flood fill</div>
     <div>
       Allowed Gap <input id="allowed-gap-input" type="range" min="0" max="100" value="0"> <span id="allowed-gap">0</span>
@@ -35,6 +31,10 @@
       <button id="clear-flood-fill">Clear Flood Fill</button>
     </div>
     <a href="https://github.com/sketchglass/floodfill-experiment">View in GitHub</a>
+    <div class="canvases">
+      <canvas id="canvas" width="2000" height="2000"></canvas>
+      <canvas id="floodfill-canvas" width="2000" height="2000"></canvas>
+    </div>
   </body>
   <script src="bundle.js"></script>
 </html>
