@@ -28,7 +28,7 @@ function clearFloodFill() {
 canvas.addEventListener("pointerdown", e => {
   if (e.shiftKey) {
     const data = context.getImageData(0, 0, canvas.width, canvas.height)
-    const src = BinaryImage.fromImageData(data, ([r, g, b, a]) => a === 0 ? 1 : 0)
+    const src = BinaryImage.fromImageData(data, [0, 0, 0, 0])
     const dst = new BinaryImage(canvas.width, canvas.height)
     const x = Math.round(e.offsetX + 0.5)
     const y = Math.round(e.offsetY + 0.5)
@@ -36,7 +36,7 @@ canvas.addEventListener("pointerdown", e => {
     //floodFill(x, y, src, dst)
     floodFillWithGap(x, y, allowedGap, src, dst)
     console.timeEnd("floodFill")
-    dst.toImageData(new Uint8ClampedArray([0,0,0,0]), new Uint8ClampedArray([0,0,255,255]), data)
+    dst.toImageData([0,0,0,0], [0,0,255,255], data)
     floodfillContext.putImageData(data, 0, 0)
   } else {
     clearFloodFill()

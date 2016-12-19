@@ -91,25 +91,48 @@ class BinaryImage {
     }
   }
 
-  static fromImageData(image: ImageData, test: (rgba: Uint8ClampedArray) => BinaryValue) {
+  static fromImageData(image: ImageData, trueColor: number[]) {
     const ret = new BinaryImage(image.width, image.height)
+    const {data, stride} = ret
+    let imageOffset = 0
+    const imageData = new Int32Array(image.data.buffer)
+    const trueColorValue = (new Int32Array(new Uint8Array(trueColor).buffer))[0]
     for (let y = 0; y < image.height; ++y) {
+      let offset = y * stride
+      let bitmask = 1
       for (let x = 0; x < image.width; ++x) {
-        const offset = (y * image.width + x) * 4
-        const rgba = image.data.slice(offset, offset + 4)
-        ret.set(x, y, test(rgba))
+        const rgba = imageData[imageOffset++]
+        if (rgba == trueColorValue) {
+          data[offset] |= bitmask
+        }
+        bitmask = bitmask << 1
+        if (bitmask == 0) {
+          bitmask = 1
+          ++offset
+        }
       }
     }
     return ret
   }
 
-  toImageData(color0: Uint8ClampedArray, color1: Uint8ClampedArray, out?: ImageData) {
+  toImageData(color0: number[], color1: number[], out?: ImageData) {
     const image = out || new ImageData(this.width, this.height)
+    const imageData = new Int32Array(image.data.buffer)
+    const color0Value = (new Int32Array(new Uint8Array(color0).buffer))[0]
+    const color1Value = (new Int32Array(new Uint8Array(color1).buffer))[0]
+    let imageOffset = 0
+    const {data, stride} = this
     for (let y = 0; y < image.height; ++y) {
+      let offset = y * stride
+      let bitmask = 1
       for (let x = 0; x < image.width; ++x) {
-        const offset = (y * image.width + x) * 4
-        const rgba = this.get(x, y) ? color1 : color0
-        image.data.set(rgba, offset)
+        const rgba = data[offset] & bitmask ? color1Value : color0Value
+        imageData[imageOffset++] = rgba
+        bitmask = bitmask << 1
+        if (bitmask == 0) {
+          bitmask = 1
+          ++offset
+        }
       }
     }
     return image
